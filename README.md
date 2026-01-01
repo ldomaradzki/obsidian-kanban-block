@@ -4,6 +4,8 @@ A simple Obsidian plugin that renders todo checkboxes as an interactive kanban b
 
 ![Screenshot](screenshot.png)
 
+![Demo](demo.webp)
+
 ## Usage
 
 Create a `todo` code block with checkbox items:
