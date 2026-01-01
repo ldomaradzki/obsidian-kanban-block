@@ -1,0 +1,145 @@
+/* Kanban Board Container */
+.kanban-board {
+	display: flex;
+	gap: 12px;
+	padding: 8px 0;
+	overflow-x: auto;
+}
+
+/* Columns */
+.kanban-column {
+	flex: 1;
+	min-width: 150px;
+	max-width: 250px;
+	background-color: var(--background-secondary);
+	border-radius: 8px;
+	padding: 8px;
+	display: flex;
+	flex-direction: column;
+}
+
+.kanban-column-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 4px 8px 8px;
+	border-bottom: 1px solid var(--background-modifier-border);
+	margin-bottom: 8px;
+}
+
+.kanban-column-title {
+	font-weight: 600;
+	font-size: 0.85em;
+	color: var(--text-normal);
+}
+
+.kanban-column-count {
+	font-size: 0.75em;
+	color: var(--text-muted);
+	background-color: var(--background-modifier-hover);
+	padding: 2px 6px;
+	border-radius: 10px;
+}
+
+/* Items container */
+.kanban-column-items {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-height: 40px;
+	flex: 1;
+}
+
+.kanban-column-items.kanban-drag-over {
+	background-color: var(--background-modifier-hover);
+	border-radius: 4px;
+}
+
+/* Cards */
+.kanban-card {
+	background-color: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	padding: 8px 10px;
+	cursor: grab;
+	transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.kanban-card:hover {
+	box-shadow: 0 2px 8px var(--background-modifier-box-shadow);
+}
+
+.kanban-card:active {
+	cursor: grabbing;
+}
+
+.kanban-card-dragging {
+	opacity: 0.5;
+	transform: rotate(2deg);
+}
+
+.kanban-card-done {
+	opacity: 0.6;
+}
+
+.kanban-card-done .kanban-card-text {
+	color: var(--text-muted);
+}
+
+.kanban-card-text {
+	font-size: 0.9em;
+	line-height: 1.4;
+	color: var(--text-normal);
+	word-break: break-word;
+}
+
+/* Clean up rendered markdown inside cards */
+.kanban-card-text p {
+	margin: 0;
+}
+
+.kanban-card-text a.internal-link {
+	cursor: grab;
+}
+
+.kanban-card-text ul,
+.kanban-card-text ol {
+	margin: 4px 0;
+	padding-left: 1.2em;
+}
+
+.kanban-card-text code {
+	font-size: 0.85em;
+}
+
+/* Nested items badge */
+.kanban-card {
+	position: relative;
+}
+
+.kanban-card-badge {
+	position: absolute;
+	bottom: 4px;
+	right: 4px;
+	font-size: 0.7em;
+	color: var(--text-muted);
+	background-color: var(--background-secondary);
+	padding: 1px 5px;
+	border-radius: 8px;
+}
+
+/* Drop indicator */
+.kanban-drop-indicator {
+	height: 3px;
+	background-color: var(--interactive-accent);
+	border-radius: 2px;
+	margin: 2px 0;
+}
+
+/* Empty state */
+.kanban-empty {
+	color: var(--text-muted);
+	font-style: italic;
+	padding: 16px;
+	text-align: center;
+}

@@ -1,0 +1,20 @@
+{
+	"name": "obsidian-kanban-block",
+	"version": "1.0.0",
+	"description": "Render todo checkboxes as an interactive kanban board",
+	"main": "main.js",
+	"type": "module",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production"
+	},
+	"dependencies": {
+		"obsidian": "latest"
+	},
+	"devDependencies": {
+		"@types/node": "^16.11.6",
+		"esbuild": "0.25.5",
+		"typescript": "^5.8.3",
+		"tslib": "2.4.0"
+	}
+}

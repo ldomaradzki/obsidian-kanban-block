@@ -1,0 +1,9 @@
+{
+	"id": "kanban-block",
+	"name": "Kanban Block",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Render todo checkboxes as an interactive kanban board",
+	"author": "Lukasz",
+	"isDesktopOnly": false
+}
