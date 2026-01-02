@@ -35,7 +35,7 @@ export class KanbanBlockSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('To do column')
-			.setDesc('Name for the first column ([ ] items)')
+			.setDesc('Name for the first column')
 			.addText(text => text
 				.setPlaceholder('To do')
 				.setValue(this.plugin.settings.columnNames.todo)
@@ -46,7 +46,7 @@ export class KanbanBlockSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('In progress column')
-			.setDesc('Name for the middle column ([/] items)')
+			.setDesc('Name for the middle column')
 			.addText(text => text
 				.setPlaceholder('In progress')
 				.setValue(this.plugin.settings.columnNames.inProgress)
@@ -57,7 +57,7 @@ export class KanbanBlockSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Done column')
-			.setDesc('Name for the last column ([x] items)')
+			.setDesc('Name for the last column')
 			.addText(text => text
 				.setPlaceholder('Done')
 				.setValue(this.plugin.settings.columnNames.done)

@@ -25,7 +25,8 @@ This is an Obsidian plugin that registers a markdown code block processor for `t
 **Source files:**
 - `main.ts` - Plugin entry point. Registers the `todo` code block processor and handles syncing changes back to the markdown source via editor API.
 - `parser.ts` - Parses todo checkbox syntax (`[ ]`, `[/]`, `[x]`) into `TodoItem` objects. Handles nested/indented items as children of their parent.
-- `kanban.ts` - Renders the 3-column kanban UI with drag-and-drop. Uses Obsidian's `MarkdownRenderer` to render wiki links, bold, tags, etc. inside cards.
+- `kanban.ts` - Renders the 3-column kanban UI with drag-and-drop, inline editing, and add buttons. Uses Obsidian's `MarkdownRenderer` to render wiki links, bold, tags, etc. inside cards.
+- `settings.ts` - Plugin settings (column names, center board toggle) and settings tab UI.
 - `types.ts` - TypeScript interfaces (`TodoItem`, `TodoState`, `KanbanColumn`).
 - `styles.css` - Theme-aware styling using Obsidian CSS variables.
 
