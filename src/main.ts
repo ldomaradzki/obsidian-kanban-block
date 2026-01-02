@@ -3,7 +3,7 @@ import { parseTodoBlock } from './parser';
 import { KanbanBoard } from './kanban';
 
 export default class KanbanBlockPlugin extends Plugin {
-	async onload() {
+	onload() {
 		this.registerMarkdownCodeBlockProcessor('todo', (source, el, ctx) => {
 			this.processKanbanBlock(source, el, ctx);
 		});
