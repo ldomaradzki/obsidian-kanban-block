@@ -1,6 +1,7 @@
-import { App, Component, MarkdownRenderer } from 'obsidian';
+import { App, Component, MarkdownRenderer, Plugin } from 'obsidian';
 import { TodoItem, TodoState, KanbanColumn } from './types';
 import { itemsToMarkdown } from './parser';
+import KanbanBlockPlugin from 'main';
 
 const COLUMNS: { state: TodoState; title: string }[] = [
 	{ state: 'todo', title: 'To Do' },
@@ -17,6 +18,7 @@ export class KanbanBoard {
 	private sourcePath: string;
 	private draggedItem: TodoItem | null = null;
 	private draggedElement: HTMLElement | null = null;
+	private kanbanPlugin: KanbanBlockPlugin;
 
 	constructor(
 		container: HTMLElement,
@@ -24,7 +26,8 @@ export class KanbanBoard {
 		onUpdate: (markdown: string) => void,
 		app: App,
 		component: Component,
-		sourcePath: string
+		sourcePath: string,
+		kanbanPlugin: KanbanBlockPlugin,
 	) {
 		this.container = container;
 		this.items = items;
@@ -32,7 +35,8 @@ export class KanbanBoard {
 		this.app = app;
 		this.component = component;
 		this.sourcePath = sourcePath;
-		this.render();
+		this.kanbanPlugin = kanbanPlugin;
+		this.render(kanbanPlugin);
 	}
 
 	private getColumns(): KanbanColumn[] {
@@ -42,9 +46,13 @@ export class KanbanBoard {
 		}));
 	}
 
-	private render(): void {
+	private render(plugin: KanbanBlockPlugin): void {
 		this.container.empty();
 		this.container.addClass('kanban-board');
+		
+		if(plugin.settings.iscentering) {
+			this.container.addClass('kanban-board--centering');
+		}
 
 		const columns = this.getColumns();
 		for (const column of columns) {
@@ -240,7 +248,7 @@ export class KanbanBoard {
 		}
 
 		// Re-render and notify
-		this.render();
+		this.render(this.kanbanPlugin);
 		this.onUpdate(itemsToMarkdown(this.items));
 	}
 
@@ -266,7 +274,7 @@ export class KanbanBoard {
 		}
 
 		this.items.splice(insertIndex, 0, newItem);
-		this.render();
+		this.render(this.kanbanPlugin);
 
 		// Find the new card and start editing it
 		const newCard = this.container.querySelector(`[data-id="${newItem.id}"]`) as HTMLElement;
@@ -304,7 +312,7 @@ export class KanbanBoard {
 			if (index > -1) {
 				this.items.splice(index, 1);
 			}
-			this.render();
+			this.render(this.kanbanPlugin);
 			this.onUpdate(itemsToMarkdown(this.items));
 		};
 
@@ -315,7 +323,7 @@ export class KanbanBoard {
 				deleteItem();
 			} else {
 				item.text = newText;
-				this.render();
+				this.render(this.kanbanPlugin);
 				this.onUpdate(itemsToMarkdown(this.items));
 			}
 		};
@@ -328,7 +336,7 @@ export class KanbanBoard {
 					this.items.splice(index, 1);
 				}
 			}
-			this.render();
+			this.render(this.kanbanPlugin);
 		};
 
 		input.addEventListener('blur', save);

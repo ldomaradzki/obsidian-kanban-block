@@ -1,13 +1,27 @@
 import { Plugin, MarkdownPostProcessorContext, MarkdownView } from 'obsidian';
 import { parseTodoBlock } from './parser';
 import { KanbanBoard } from './kanban';
+import { PluginSettings, DEFAULT_SETTINGS } from 'settings/Settings';
+import { KanbanSettingTab } from 'settings/KanbanSettingTab';
 
 export default class KanbanBlockPlugin extends Plugin {
-	onload() {
+	settings: PluginSettings;
+	
+	async onload() {
+		await this.loadSettings();
+		this.addSettingTab(new KanbanSettingTab(this.app, this));
 		this.registerMarkdownCodeBlockProcessor('todo', (source, el, ctx) => {
 			this.processKanbanBlock(source, el, ctx);
 		});
 	}
+
+	async loadSettings() {
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+	}
+
+	async saveSettings() {
+    	await this.saveData(this.settings);
+  	}
 
 	private processKanbanBlock(
 		source: string,
@@ -23,7 +37,7 @@ export default class KanbanBlockPlugin extends Plugin {
 
 		new KanbanBoard(el, items, (newMarkdown) => {
 			this.updateSource(ctx, source, newMarkdown);
-		}, this.app, this, ctx.sourcePath);
+		}, this.app, this, ctx.sourcePath, this);
 	}
 
 	private updateSource(

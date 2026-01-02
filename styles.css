@@ -6,6 +6,10 @@
 	overflow-x: auto;
 }
 
+.kanban-board--centering {
+	justify-content: center;
+}
+
 /* Columns */
 .kanban-column {
 	flex: 1;
