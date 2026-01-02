@@ -143,3 +143,42 @@
 	padding: 16px;
 	text-align: center;
 }
+
+/* Add button */
+.kanban-add-btn {
+	margin-top: 8px;
+	padding: 6px;
+	text-align: center;
+	color: var(--text-muted);
+	font-size: 1.2em;
+	cursor: pointer;
+	border-radius: 4px;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.kanban-add-btn:hover {
+	background-color: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+/* Editing state */
+.kanban-card-editing {
+	cursor: default;
+}
+
+.kanban-edit-input {
+	width: 100%;
+	background-color: transparent;
+	border: none;
+	outline: none;
+	font-size: 0.9em;
+	line-height: 1.4;
+	color: var(--text-normal);
+	font-family: inherit;
+	resize: none;
+	overflow: hidden;
+}
+
+.kanban-edit-input:focus {
+	outline: none;
+}

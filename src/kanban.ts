@@ -68,6 +68,10 @@ export class KanbanBoard {
 		}
 
 		this.setupDropZone(itemsContainer, column.state);
+
+		// Add button
+		const addBtn = colEl.createDiv({ cls: 'kanban-add-btn', text: '+' });
+		addBtn.addEventListener('click', () => this.addNewItem(column.state));
 	}
 
 	private renderItem(container: HTMLElement, item: TodoItem): void {
@@ -80,7 +84,7 @@ export class KanbanBoard {
 		}
 
 		const textEl = card.createDiv({ cls: 'kanban-card-text' });
-		MarkdownRenderer.render(
+		void MarkdownRenderer.render(
 			this.app,
 			item.text,
 			textEl,
@@ -97,6 +101,10 @@ export class KanbanBoard {
 
 		card.addEventListener('dragstart', (e) => this.handleDragStart(e, item, card));
 		card.addEventListener('dragend', () => this.handleDragEnd());
+		card.addEventListener('dblclick', (e) => {
+			e.preventDefault();
+			this.startEditing(card, item);
+		});
 	}
 
 	private handleDragStart(e: DragEvent, item: TodoItem, element: HTMLElement): void {
@@ -164,7 +172,7 @@ export class KanbanBoard {
 	}
 
 	private getOrCreateIndicator(container: HTMLElement): HTMLElement {
-		let indicator = container.querySelector('.kanban-drop-indicator') as HTMLElement | null;
+		let indicator = container.querySelector<HTMLElement>('.kanban-drop-indicator');
 		if (!indicator) {
 			indicator = document.createElement('div');
 			indicator.className = 'kanban-drop-indicator';
@@ -173,7 +181,7 @@ export class KanbanBoard {
 	}
 
 	private getDragAfterElement(container: HTMLElement, y: number): HTMLElement | null {
-		const cards = Array.from(container.querySelectorAll('.kanban-card:not(.kanban-card-dragging)')) as HTMLElement[];
+		const cards = Array.from(container.querySelectorAll<HTMLElement>('.kanban-card:not(.kanban-card-dragging)'));
 
 		let closest: { element: HTMLElement | null; offset: number } = { element: null, offset: Number.NEGATIVE_INFINITY };
 
@@ -234,5 +242,104 @@ export class KanbanBoard {
 		// Re-render and notify
 		this.render();
 		this.onUpdate(itemsToMarkdown(this.items));
+	}
+
+	private addNewItem(state: TodoState): void {
+		const newItem: TodoItem = {
+			id: crypto.randomUUID(),
+			text: '',
+			state,
+			originalMarker: state === 'done' ? 'x' : state === 'in-progress' ? '/' : ' ',
+			children: [],
+		};
+
+		// Find position to insert based on state order
+		const stateOrder = COLUMNS.map(c => c.state);
+		const targetStateIndex = stateOrder.indexOf(state);
+
+		let insertIndex = 0;
+		for (let i = 0; i < this.items.length; i++) {
+			const itemStateIndex = stateOrder.indexOf(this.items[i]!.state);
+			if (itemStateIndex <= targetStateIndex) {
+				insertIndex = i + 1;
+			}
+		}
+
+		this.items.splice(insertIndex, 0, newItem);
+		this.render();
+
+		// Find the new card and start editing it
+		const newCard = this.container.querySelector(`[data-id="${newItem.id}"]`) as HTMLElement;
+		if (newCard) {
+			this.startEditing(newCard, newItem, true);
+		}
+	}
+
+	private startEditing(card: HTMLElement, item: TodoItem, isNew = false): void {
+		card.draggable = false;
+		card.addClass('kanban-card-editing');
+
+		const textEl = card.querySelector('.kanban-card-text');
+		if (!textEl) return;
+
+		const input = document.createElement('textarea');
+		input.className = 'kanban-edit-input';
+		input.value = item.text;
+		input.rows = 1;
+
+		textEl.replaceWith(input);
+		input.focus();
+		input.select();
+
+		// Auto-resize
+		const resize = () => {
+			input.style.height = 'auto';
+			input.style.height = input.scrollHeight + 'px';
+		};
+		resize();
+		input.addEventListener('input', resize);
+
+		const deleteItem = () => {
+			const index = this.items.findIndex(i => i.id === item.id);
+			if (index > -1) {
+				this.items.splice(index, 1);
+			}
+			this.render();
+			this.onUpdate(itemsToMarkdown(this.items));
+		};
+
+		const save = () => {
+			const newText = input.value.trim();
+			if (newText === '') {
+				// Remove item if text is empty
+				deleteItem();
+			} else {
+				item.text = newText;
+				this.render();
+				this.onUpdate(itemsToMarkdown(this.items));
+			}
+		};
+
+		const cancel = () => {
+			if (isNew) {
+				// Remove new item on cancel
+				const index = this.items.findIndex(i => i.id === item.id);
+				if (index > -1) {
+					this.items.splice(index, 1);
+				}
+			}
+			this.render();
+		};
+
+		input.addEventListener('blur', save);
+		input.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter' && !e.shiftKey) {
+				e.preventDefault();
+				input.blur();
+			} else if (e.key === 'Escape') {
+				input.removeEventListener('blur', save);
+				cancel();
+			}
+		});
 	}
 }
