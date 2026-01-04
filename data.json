@@ -1,10 +1,10 @@
 {
   "columnNames": {
-    "todo": "À faire",
-    "inProgress": "En cours",
-    "done": "Terminé"
+    "todo": "To Do",
+    "inProgress": "In Progress",
+    "done": "Done"
   },
   "centerBoard": false,
-  "language": "fr",
+  "language": "en",
   "deleteDelay": 0.75
 }
