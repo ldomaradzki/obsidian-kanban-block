@@ -20,6 +20,7 @@ export class KanbanBoard {
 	private sourcePath: string;
 	private columnNames: ColumnNames;
 	private centerBoard: boolean;
+	private readOnly: boolean;
 	private draggedItem: TodoItem | null = null;
 	private draggedElement: HTMLElement | null = null;
 
@@ -32,7 +33,8 @@ export class KanbanBoard {
 		component: Component,
 		sourcePath: string,
 		columnNames: ColumnNames,
-		centerBoard: boolean
+		centerBoard: boolean,
+		readOnly: boolean
 	) {
 		this.container = container;
 		this.items = items;
@@ -43,6 +45,7 @@ export class KanbanBoard {
 		this.sourcePath = sourcePath;
 		this.columnNames = columnNames;
 		this.centerBoard = centerBoard;
+		this.readOnly = readOnly;
 		this.render();
 	}
 
@@ -92,17 +95,22 @@ export class KanbanBoard {
 			this.renderItem(itemsContainer, item);
 		}
 
-		this.setupDropZone(itemsContainer, column.state);
+		if (!this.readOnly) {
+			this.setupDropZone(itemsContainer, column.state);
 
-		// Add button
-		const addBtn = colEl.createDiv({ cls: 'kanban-add-btn', text: '+' });
-		addBtn.addEventListener('click', () => this.addNewItem(column.state));
+			// Add button
+			const addBtn = colEl.createDiv({ cls: 'kanban-add-btn', text: '+' });
+			addBtn.addEventListener('click', () => this.addNewItem(column.state));
+		}
 	}
 
 	private renderItem(container: HTMLElement, item: TodoItem): void {
 		const card = container.createDiv({ cls: 'kanban-card' });
 		card.dataset['id'] = item.id;
-		card.draggable = true;
+
+		if (!this.readOnly) {
+			card.draggable = true;
+		}
 
 		if (item.state === 'done') {
 			card.addClass('kanban-card-done');
@@ -124,12 +132,14 @@ export class KanbanBoard {
 			});
 		}
 
-		card.addEventListener('dragstart', (e) => this.handleDragStart(e, item, card));
-		card.addEventListener('dragend', () => this.handleDragEnd());
-		card.addEventListener('dblclick', (e) => {
-			e.preventDefault();
-			this.startEditing(card, item);
-		});
+		if (!this.readOnly) {
+			card.addEventListener('dragstart', (e) => this.handleDragStart(e, item, card));
+			card.addEventListener('dragend', () => this.handleDragEnd());
+			card.addEventListener('dblclick', (e) => {
+				e.preventDefault();
+				this.startEditing(card, item);
+			});
+		}
 	}
 
 	private handleDragStart(e: DragEvent, item: TodoItem, element: HTMLElement): void {

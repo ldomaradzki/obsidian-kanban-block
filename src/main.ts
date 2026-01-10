@@ -31,9 +31,22 @@ export default class KanbanBlockPlugin extends Plugin {
 	): void {
 		const { items, ignoredLines } = parseTodoBlock(source);
 
+		// Check if we can get an editor for this file - if not, we're in reading mode
+		let readOnly = true;
+		const leaves = this.app.workspace.getLeavesOfType('markdown');
+		for (const leaf of leaves) {
+			const view = leaf.view as MarkdownView;
+			if (view.file?.path === ctx.sourcePath) {
+				// Found the view with this file
+				const mode = view.getMode();
+				readOnly = mode === 'preview';
+				break;
+			}
+		}
+
 		new KanbanBoard(el, items, ignoredLines, (newMarkdown) => {
 			this.updateSource(ctx, source, newMarkdown);
-		}, this.app, this, ctx.sourcePath, this.settings.columnNames, this.settings.centerBoard);
+		}, this.app, this, ctx.sourcePath, this.settings.columnNames, this.settings.centerBoard, readOnly);
 	}
 
 	private updateSource(
@@ -45,15 +58,17 @@ export default class KanbanBlockPlugin extends Plugin {
 		if (!view) return;
 
 		const editor = view.editor;
+		if (!editor) return;
+
 		const content = editor.getValue();
 
 		// Find the code block and replace its content
 		const codeBlockRegex = /```todo\n([\s\S]*?)```/g;
 		let match;
-		let found = false;
 
 		while ((match = codeBlockRegex.exec(content)) !== null) {
 			const blockContent = match[1];
+
 			// Normalize for comparison (trim trailing newline)
 			if (blockContent?.trim() === oldSource.trim()) {
 				const start = editor.offsetToPos(match.index + '```todo\n'.length);
@@ -62,13 +77,8 @@ export default class KanbanBlockPlugin extends Plugin {
 				// Preserve trailing newline if original had one
 				const replacement = blockContent?.endsWith('\n') ? newSource + '\n' : newSource;
 				editor.replaceRange(replacement, start, end);
-				found = true;
 				break;
 			}
-		}
-
-		if (!found) {
-			console.warn('KanbanBlock: Could not find matching code block to update');
 		}
 	}
 }
