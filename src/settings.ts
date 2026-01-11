@@ -62,7 +62,9 @@ export class KanbanBlockSettingTab extends PluginSettingTab {
 			);
 
 		// Column names heading
-		containerEl.createEl('h3', { text: t('settings_column_names', this.plugin.settings.language) });
+		new Setting(containerEl)
+			.setName(t('settings_column_names', this.plugin.settings.language))
+			.setHeading();
 
 		new Setting(containerEl)
 			.setName(t('settings_todo_column', this.plugin.settings.language))
@@ -95,7 +97,9 @@ export class KanbanBlockSettingTab extends PluginSettingTab {
 				}));
 
 		// Layout heading
-		containerEl.createEl('h3', { text: 'Layout' });
+		new Setting(containerEl)
+			.setName('Layout')
+			.setHeading();
 
 		// Center board setting
 		new Setting(containerEl)

@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-kanban-block",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "Render todo checkboxes as an interactive kanban board",
 	"main": "main.js",
 	"type": "module",

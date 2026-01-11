@@ -3,7 +3,7 @@ import { TodoItem, TodoState, KanbanColumn } from './types';
 import { itemsToMarkdown } from './parser';
 import { KanbanSuggest } from './suggest';
 import { ColumnNames } from './settings';
-import { t, Language } from './i18n';
+import { Language } from './i18n';
 
 const STATE_ORDER: TodoState[] = ['todo', 'in-progress', 'done'];
 
@@ -233,7 +233,7 @@ export class KanbanBoard {
 		if (index > -1) {
 			this.items.splice(index, 1);
 			this.render();
-			this.triggerUpdate();
+			void this.triggerUpdate();
 		}
 	}
 
@@ -297,7 +297,7 @@ export class KanbanBoard {
 									}
 									cardText = basename;
 								}
-							} catch (err) {
+							} catch {
 								// Fallback to original text
 							}
 						}
@@ -318,7 +318,7 @@ export class KanbanBoard {
 						this.insertItem(newItem, state, beforeId, true);
 					}
 					this.render();
-					this.triggerUpdate();
+					void this.triggerUpdate();
 				}
 			}
 		});
@@ -399,7 +399,7 @@ export class KanbanBoard {
 		// Re-render and notify
 		if (!silent) {
 			this.render();
-			this.triggerUpdate();
+			void this.triggerUpdate();
 		}
 	}
 
@@ -466,7 +466,7 @@ export class KanbanBoard {
 				this.items.splice(index, 1);
 			}
 			this.render();
-			this.triggerUpdate();
+			void this.triggerUpdate();
 		};
 
 		const save = () => {
@@ -477,7 +477,7 @@ export class KanbanBoard {
 			} else {
 				item.text = newText;
 				this.render();
-				this.triggerUpdate();
+				void this.triggerUpdate();
 			}
 		};
 
@@ -536,7 +536,7 @@ export class KanbanBoard {
 				this.items.splice(index, 1);
 			}
 			this.render();
-			this.triggerUpdate();
+			void this.triggerUpdate();
 		};
 
 		const save = () => {
@@ -548,7 +548,7 @@ export class KanbanBoard {
 			}
 			item.text = newText || 'New Item';
 			this.render();
-			this.triggerUpdate();
+			void this.triggerUpdate();
 		};
 
 		const cancel = () => {

@@ -1,5 +1,5 @@
 import { Plugin, MarkdownPostProcessorContext, MarkdownView, Editor, Menu, TFile } from 'obsidian';
-import { parseTodoBlock, itemsToMarkdown } from './parser';
+import { parseTodoBlock } from './parser';
 import { KanbanBoard } from './kanban';
 import { KanbanBlockSettings, DEFAULT_SETTINGS, KanbanBlockSettingTab } from './settings';
 import { t } from './i18n';
@@ -33,7 +33,7 @@ export default class KanbanBlockPlugin extends Plugin {
 						.setTitle(t('menu_insert_kanban', this.settings.language))
 						.setIcon("zap")
 						.setSection("insert")
-						.onClick(async () => {
+						.onClick(() => {
 							editor.replaceSelection("```todo\n- [ ] \n```");
 						});
 				});
