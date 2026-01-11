@@ -55,14 +55,35 @@ export class KanbanBoard {
 	}
 
 	private setupBoardEvents(): void {
-		// Track when dragging outside the board
-		this.container.addEventListener('dragover', (e) => {
-			// If we are over the container but NOT over a column, we are "outside" valid drop zones
-			// but still within the board's visual area. 
-			// Actually, the user likely means "outside the board element".
-		});
+		// Track when dragging outside the board for visual feedback
+		const handleDocumentDragOver = (e: DragEvent) => {
+			if (!this.draggedElement) return;
 
-		// We'll use the window or workspace events if needed, but let's try container first.
+			// Get board bounds
+			const board = this.container.querySelector('.kanban-board');
+			if (!board) return;
+
+			const boardRect = board.getBoundingClientRect();
+			const isOutside =
+				e.clientX < boardRect.left ||
+				e.clientX > boardRect.right ||
+				e.clientY < boardRect.top ||
+				e.clientY > boardRect.bottom;
+
+			// Add/remove delete zone class for visual feedback
+			if (isOutside) {
+				this.draggedElement.addClass('kanban-card-delete-zone');
+			} else {
+				this.draggedElement.removeClass('kanban-card-delete-zone');
+			}
+		};
+
+		document.addEventListener('dragover', handleDocumentDragOver);
+
+		// Clean up listener when component unloads
+		this.component.register(() => {
+			document.removeEventListener('dragover', handleDocumentDragOver);
+		});
 	}
 
 	private async triggerUpdate(): Promise<void> {
@@ -183,6 +204,7 @@ export class KanbanBoard {
 	private handleDragEnd(e: DragEvent): void {
 		if (this.draggedElement) {
 			this.draggedElement.removeClass('kanban-card-dragging');
+			this.draggedElement.removeClass('kanban-card-delete-zone');
 		}
 
 		// If dropEffect is 'none', it was dropped outside a valid drop zone
@@ -390,13 +412,94 @@ export class KanbanBoard {
 			children: [],
 		};
 
-		this.insertItem(newItem, state);
+		// Add item to data model silently (no render)
+		this.insertItem(newItem, state, undefined, true);
 
-		// Find the new card and start editing it
-		const newCard = this.container.querySelector(`[data-id="${newItem.id}"]`) as HTMLElement;
-		if (newCard) {
-			this.startEditing(newCard, newItem, true);
+		// Find the column container
+		const columnContainer = this.container.querySelector(`[data-state="${state}"]`) as HTMLElement;
+		if (!columnContainer) {
+			// Fallback: render normally if we can't find column
+			this.render();
+			return;
 		}
+
+		// Create the card manually to maintain user action context for mobile focus
+		const card = columnContainer.createDiv({ cls: 'kanban-card' });
+		card.dataset['id'] = newItem.id;
+		card.draggable = true;
+
+		const textEl = card.createDiv({ cls: 'kanban-card-text' });
+
+		// Immediately start editing (this keeps the user action context for mobile)
+		this.startEditingNew(card, textEl, newItem);
+	}
+
+	private startEditingNew(card: HTMLElement, textEl: HTMLElement, item: TodoItem): void {
+		card.draggable = false;
+		card.addClass('kanban-card-editing');
+
+		const input = document.createElement('textarea');
+		input.className = 'kanban-edit-input';
+		input.value = '';
+		input.rows = 1;
+
+		textEl.replaceWith(input);
+
+		// Add suggestions for tags and files
+		new KanbanSuggest(this.app, input);
+
+		// Focus immediately - this maintains user action context for mobile
+		input.focus();
+		input.select();
+
+		// Auto-resize using CSS custom property
+		const resize = () => {
+			input.setCssProps({ '--input-height': 'auto' });
+			input.setCssProps({ '--input-height': input.scrollHeight + 'px' });
+		};
+		resize();
+		input.addEventListener('input', resize);
+
+		const deleteItem = () => {
+			const index = this.items.findIndex(i => i.id === item.id);
+			if (index > -1) {
+				this.items.splice(index, 1);
+			}
+			this.render();
+			this.triggerUpdate();
+		};
+
+		const save = () => {
+			const newText = input.value.trim();
+			if (newText === '') {
+				// Remove item if text is empty
+				deleteItem();
+			} else {
+				item.text = newText;
+				this.render();
+				this.triggerUpdate();
+			}
+		};
+
+		const cancel = () => {
+			// Remove new item on cancel
+			const index = this.items.findIndex(i => i.id === item.id);
+			if (index > -1) {
+				this.items.splice(index, 1);
+			}
+			this.render();
+		};
+
+		input.addEventListener('blur', save);
+		input.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter' && !e.shiftKey) {
+				e.preventDefault();
+				input.blur();
+			} else if (e.key === 'Escape') {
+				input.removeEventListener('blur', save);
+				cancel();
+			}
+		});
 	}
 
 	private startEditing(card: HTMLElement, item: TodoItem, isNew = false): void {

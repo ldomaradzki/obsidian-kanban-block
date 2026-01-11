@@ -88,6 +88,11 @@
 	transform: rotate(2deg);
 }
 
+.kanban-card-delete-zone {
+	border: 2px solid #ff4444 !important;
+	background-color: rgba(255, 68, 68, 0.1) !important;
+}
+
 .kanban-card-done {
 	opacity: 0.6;
 }

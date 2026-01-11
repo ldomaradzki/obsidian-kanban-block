@@ -2,7 +2,7 @@ import { AbstractInputSuggest, App, TFile } from 'obsidian';
 
 export class KanbanSuggest extends AbstractInputSuggest<string | TFile> {
     constructor(public app: App, private inputEl: HTMLTextAreaElement) {
-        super(app, inputEl);
+        super(app, inputEl as any);
     }
 
     getSuggestions(query: string): (string | TFile)[] {
@@ -13,8 +13,20 @@ export class KanbanSuggest extends AbstractInputSuggest<string | TFile> {
         const tagMatch = text.match(/#([^\s#\[\]]*)$/);
         if (tagMatch) {
             const tagQuery = tagMatch[1]!.toLowerCase();
-            const tags = Object.keys(this.app.metadataCache.getTags());
-            return tags
+            const tags = new Set<string>();
+
+            // Collect all tags from all files
+            const files = this.app.vault.getMarkdownFiles();
+            for (const file of files) {
+                const cache = this.app.metadataCache.getFileCache(file);
+                if (cache?.tags) {
+                    for (const tag of cache.tags) {
+                        tags.add(tag.tag);
+                    }
+                }
+            }
+
+            return Array.from(tags)
                 .filter(tag => tag.toLowerCase().includes(tagQuery))
                 .map(tag => tag.startsWith('#') ? tag : '#' + tag);
         }
