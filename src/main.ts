@@ -76,13 +76,24 @@ export default class KanbanBlockPlugin extends Plugin {
 		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
 		const editor = view?.getMode() === 'source' ? view.editor : null;
 
-		if (editor && sectionInfo) {
+		if (editor && sectionInfo && view) {
+			// Save scroll position before making changes
+			const scrollContainer = view.contentEl.querySelector('.cm-scroller') as HTMLElement | null;
+			const scrollTop = scrollContainer?.scrollTop ?? 0;
+
 			const startLine = sectionInfo.lineStart + 1;
 			const endLine = sectionInfo.lineEnd - 1;
 			editor.replaceRange(newSource.endsWith('\n') ? newSource : newSource + '\n',
 				{ line: startLine, ch: 0 },
 				{ line: endLine + 1, ch: 0 }
 			);
+
+			// Restore scroll position after change
+			if (scrollContainer) {
+				requestAnimationFrame(() => {
+					scrollContainer.scrollTop = scrollTop;
+				});
+			}
 			return;
 		}
 

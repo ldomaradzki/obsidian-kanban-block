@@ -231,7 +231,7 @@
 }
 
 /* Mobile Responsiveness */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 640px) {
 	.kanban-board {
 		flex-direction: column;
 		gap: 12px;
