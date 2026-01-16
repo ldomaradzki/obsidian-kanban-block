@@ -78,7 +78,7 @@ export default class KanbanBlockPlugin extends Plugin {
 
 		if (editor && sectionInfo && view) {
 			// Save scroll position before making changes
-			const scrollContainer = view.contentEl.querySelector('.cm-scroller') as HTMLElement | null;
+			const scrollContainer = view.contentEl.querySelector('.cm-scroller');
 			const scrollTop = scrollContainer?.scrollTop ?? 0;
 
 			const startLine = sectionInfo.lineStart + 1;
