@@ -93,11 +93,11 @@
 	background-color: rgba(255, 68, 68, 0.1) !important;
 }
 
-.kanban-card-done {
+.kanban-card-fade {
 	opacity: 0.6;
 }
 
-.kanban-card-done .kanban-card-text {
+.kanban-card-fade .kanban-card-text {
 	color: var(--text-muted);
 }
 

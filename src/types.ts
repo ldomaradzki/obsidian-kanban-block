@@ -1,4 +1,4 @@
-export type TodoState = 'todo' | 'in-progress' | 'done';
+export type TodoState = string;
 
 export interface TodoItem {
 	id: string;
@@ -11,10 +11,12 @@ export interface TodoItem {
 export interface ParseResult {
 	items: TodoItem[];
 	ignoredLines: string[]; // Non-checkbox lines that couldn't be parsed
+	unmatchedCount: number;
 }
 
 export interface KanbanColumn {
 	state: TodoState;
 	title: string;
 	items: TodoItem[];
+	collapse?: boolean;
 }

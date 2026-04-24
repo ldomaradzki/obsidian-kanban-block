@@ -1,7 +1,7 @@
 import { Plugin, MarkdownPostProcessorContext, MarkdownView, Editor, Menu, TFile } from 'obsidian';
 import { parseTodoBlock } from './parser';
 import { KanbanBoard } from './kanban';
-import { KanbanBlockSettings, DEFAULT_SETTINGS, KanbanBlockSettingTab } from './settings';
+import { KanbanBlockSettings, KanbanBlockSettingTab, normalizeSettings } from './settings';
 import { t } from './i18n';
 
 export default class KanbanBlockPlugin extends Plugin {
@@ -42,7 +42,7 @@ export default class KanbanBlockPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		this.settings = normalizeSettings(await this.loadData());
 	}
 
 	async saveSettings() {
@@ -54,11 +54,11 @@ export default class KanbanBlockPlugin extends Plugin {
 		el: HTMLElement,
 		ctx: MarkdownPostProcessorContext
 	): void {
-		const { items, ignoredLines } = parseTodoBlock(source);
+		const { items, ignoredLines, unmatchedCount } = parseTodoBlock(source, this.settings.columns);
 
 		new KanbanBoard(el, items, ignoredLines, async (newMarkdown: string, oldMarkdown: string) => {
 			await this.updateSource(ctx, el, newMarkdown, oldMarkdown);
-		}, this.app, this, ctx.sourcePath, this.settings.columnNames, this.settings.centerBoard, this.settings.language, this.settings.deleteDelay);
+		}, this.app, this, ctx.sourcePath, this.settings.columns, this.settings.centerBoard, this.settings.language, this.settings.deleteDelay, unmatchedCount);
 	}
 
 	private async updateSource(
